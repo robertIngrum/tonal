@@ -5,14 +5,13 @@ SAMPLE_RATE         = 44100
 SECONDS_TO_GENERATE = 1
 TWO_PI              = 2 * Math::PI
 RANDOM              = Random.new
-SAMPLES             = []
 
 def main(wave_type, frequency, max_amplitude)
-  SAMPLES << generate(wave_type, SAMPLE_RATE * SECONDS_TO_GENERATE, frequency, max_amplitude)
+  generate(wave_type, SAMPLE_RATE * SECONDS_TO_GENERATE, frequency, max_amplitude).compact
 end
 
-def write
-  buffer = WaveFile::Buffer.new(SAMPLES, WaveFile::Format.new(:mono, :float, SAMPLE_RATE))
+def write(samples)
+  buffer = WaveFile::Buffer.new(samples, WaveFile::Format.new(:mono, :float, SAMPLE_RATE))
 
   WaveFile::Writer.new(OUTPUT_FILENAME, WaveFile::Format.new(:mono, :pcm_16, SAMPLE_RATE)) do |writer|
     writer.write(buffer)
@@ -48,10 +47,11 @@ def generate(wave_type, num_samples, frequency, max_amplitude)
   samples
 end
 
-main :sine, 440.0, 1.0
-main :square, 440.0, 1.0
-main :saw, 440.0, 1.0
-main :triangle, 440.0, 1.0
-main :noise, 440.0, 1.0
+samples  = []
+samples += main(:sine,     440.0, 1.0)
+samples += main(:square,   440.0, 1.0)
+samples += main(:saw,      440.0, 1.0)
+samples += main(:triangle, 440.0, 1.0)
+samples += main(:noise,    440.0, 1.0)
 
-write
+write samples
